@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	_ "image/png"
-	"log"
+	"os"
 
 	"github.com/karalabe/hid"
 )
@@ -52,12 +52,16 @@ func run() error {
 	if len(devices) == 0 {
 		return fmt.Errorf("No device found with vendor:product ID %04x:%04xx", vendorID, productID)
 	}
-	log.Printf("Found %d device(s), using the first one", len(devices))
+	fmt.Printf("Found %d device(s), using the first one\n", len(devices))
 	dev, err := devices[0].Open()
 	if err != nil {
 		return err
 	}
-	defer dev.Close()
+	defer func() {
+		if err := dev.Close(); err != nil {
+			fmt.Printf("Warning: failed to close device: %v\n", err)
+		}
+	}()
 
 	var buf keyStatus
 	for {
@@ -66,7 +70,7 @@ func run() error {
 			return err
 		}
 		if n == 0 {
-			log.Printf("Finished")
+			fmt.Println("Finished")
 			return nil
 		}
 		s := buf.String()
@@ -80,6 +84,7 @@ func run() error {
 
 func main() {
 	if err := run(); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
