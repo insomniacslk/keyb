@@ -31,13 +31,12 @@ var keyMap = map[byte]string{
 	30: "1",
 	31: "2",
 	32: "3",
-	33: "3",
-	34: "4",
-	35: "5",
-	36: "6",
-	37: "7",
-	38: "8",
-	39: "9",
+	33: "4",
+	34: "5",
+	35: "6",
+	36: "7",
+	37: "8",
+	38: "9",
 }
 
 func (ks keyStatus) String() string {
@@ -105,6 +104,7 @@ func run(noKeypress bool) error {
 			debugln("Finished")
 			return nil
 		}
+		debug("raw: %v\n", buf[:n])
 		s := buf.String()
 		if s == "" {
 			debugln("<released>")
