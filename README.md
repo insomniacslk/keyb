@@ -28,9 +28,10 @@ cp udev-angerykeyb.rules /etc/udev/rules.d
 udevadm trigger
 ```
 
-## run
+## run it
 
 ```
-go run .
+go build
+sudo ./keyb
 ```
 then press some keys on the 9-keys keyboard.
