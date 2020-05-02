@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	_ "image/png"
 	"os"
+	"os/exec"
 
 	"github.com/karalabe/hid"
 )
@@ -11,6 +13,12 @@ import (
 var (
 	vendorID  = uint16(0x20A0)
 	productID = uint16(0x422d)
+
+	debug   = func(s string, args ...interface{}) {}
+	debugln = func(s string) { debug(s + "\n") }
+
+	flagNoKeypress = flag.Bool("n", false, "do not send unicode keypresses")
+	flagDoDebug    = flag.Bool("d", false, "print debug output")
 )
 
 type keyStatus [8]byte
@@ -47,19 +55,43 @@ func (ks keyStatus) String() string {
 	return ret
 }
 
-func run() error {
+func keypress(s string) {
+	var ucode string
+	switch s {
+	case "1", "3", "7", "9":
+		// angery
+		ucode = "U1F620"
+	case "2":
+		// haha
+		ucode = "U1F923"
+	case "4":
+		// wow
+	case "5":
+		// like
+	case "6":
+		// love
+	case "8":
+		// rainbow
+	}
+	cmd := exec.Command("xdotool", "key", ucode)
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Warning: failed to execute xdotool: %v\n", err)
+	}
+}
+
+func run(noKeypress bool) error {
 	devices := hid.Enumerate(vendorID, productID)
 	if len(devices) == 0 {
 		return fmt.Errorf("No device found with vendor:product ID %04x:%04xx", vendorID, productID)
 	}
-	fmt.Printf("Found %d device(s), using the first one\n", len(devices))
+	debug("Found %d device(s), using the first one\n", len(devices))
 	dev, err := devices[0].Open()
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err := dev.Close(); err != nil {
-			fmt.Printf("Warning: failed to close device: %v\n", err)
+			debug("Warning: failed to close device: %v\n", err)
 		}
 	}()
 
@@ -70,20 +102,29 @@ func run() error {
 			return err
 		}
 		if n == 0 {
-			fmt.Println("Finished")
+			debugln("Finished")
 			return nil
 		}
 		s := buf.String()
 		if s == "" {
-			fmt.Println("<released>")
+			debugln("<released>")
 		} else {
-			fmt.Println(s)
+			debugln(s)
+			if !noKeypress {
+				go keypress(s)
+			}
 		}
 	}
 }
 
 func main() {
-	if err := run(); err != nil {
+	flag.Parse()
+	if *flagDoDebug {
+		debug = func(s string, args ...interface{}) {
+			fmt.Printf(s, args...)
+		}
+	}
+	if err := run(*flagNoKeypress); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
