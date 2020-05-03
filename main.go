@@ -82,6 +82,7 @@ func keypress(s string) {
 	window := goxdo.Window(0)
 	xdo := goxdo.NewXdo()
 	// equivalent to "xdotool key <ucode>"
+	// BUG: this is very slow, and seems to be due to https://github.com/jordansissel/xdotool/issues/231
 	xdo.SendKeysequenceWindow(window, ucode, 0)
 }
 
