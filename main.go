@@ -1,12 +1,14 @@
 package main
 
+// requires libxdo-dev
+
 import (
 	"flag"
 	"fmt"
 	_ "image/png"
 	"os"
-	"os/exec"
 
+	"github.com/DanieleDaccurso/goxdo"
 	"github.com/karalabe/hid"
 )
 
@@ -76,10 +78,11 @@ func keypress(s string) {
 		// rainbow
 		ucode = "U1F308"
 	}
-	cmd := exec.Command("xdotool", "key", ucode)
-	if err := cmd.Run(); err != nil {
-		fmt.Printf("Warning: failed to execute xdotool: %v\n", err)
-	}
+	// no specific window
+	window := goxdo.Window(0)
+	xdo := goxdo.NewXdo()
+	// equivalent to "xdotool key <ucode>"
+	xdo.SendKeysequenceWindow(window, ucode, 0)
 }
 
 func run(noKeypress bool) error {
