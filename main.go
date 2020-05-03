@@ -65,12 +65,16 @@ func keypress(s string) {
 		ucode = "U1F923"
 	case "4":
 		// wow
+		ucode = "U1F62E"
 	case "5":
 		// like
+		ucode = "U1F44D"
 	case "6":
 		// love
+		ucode = "U2764"
 	case "8":
 		// rainbow
+		ucode = "U1F308"
 	}
 	cmd := exec.Command("xdotool", "key", ucode)
 	if err := cmd.Run(); err != nil {
